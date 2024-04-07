@@ -3,10 +3,23 @@
 import esbuild from "esbuild";
 import glob from "tiny-glob";
 
+/**
+ * @param {string} filename
+ * @returns
+ */
+function isTest(filename) {
+  return (
+    filename.endsWith(".test.ts") ||
+    filename.endsWith(".test.tsx") ||
+    filename.endsWith(".spec.ts") ||
+    filename.endsWith(".spec.tsx")
+  );
+}
+
 const entryPoints = [
   ...(await glob("src/**/*.ts")),
   ...(await glob("src/**/*.tsx")),
-];
+].filter((x) => !isTest(x));
 
 await esbuild.build({
   entryPoints,
