@@ -21,6 +21,16 @@ const entryPoints = [
 const tsconfig = JSON.parse(await readFile("./tsconfig.json", "utf8"));
 
 /**
+ *
+ * @param {string} filename
+ */
+function convertToMjs(filename) {
+  if (filename.endsWith(".ts")) return filename.slice(0, -3) + ".mjs";
+  if (filename.endsWith(".tsx")) return filename.slice(0, -4) + ".mjs";
+  return filename;
+}
+
+/**
  * @param {string} filename
  */
 async function transform(filename) {
@@ -46,14 +56,14 @@ async function transform(filename) {
   });
 
   for (const item of ast.body) {
-    if (item.type === "ImportDeclaration") {
+    if (
+      item.type === "ImportDeclaration" ||
+      item.type === "ExportAllDeclaration" ||
+      (item.type === "ExportNamedDeclaration" && item.source)
+    ) {
       const source = item.source.value;
       if (source.startsWith("./") || source.startsWith("../")) {
-        if (source.endsWith(".ts")) {
-          item.source.value = source.slice(0, -3) + ".mjs";
-        } else if (source.endsWith(".tsx")) {
-          item.source.value = source.slice(0, -4) + ".mjs";
-        }
+        item.source.value = convertToMjs(source);
       }
       item.source.raw = JSON.stringify(item.source.value);
     }
