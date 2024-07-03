@@ -1,6 +1,6 @@
 {
   "name": "@swwind/exbuild",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "A simple build tool for pure typescript library",
   "type": "module",
   "bin": {
@@ -9,7 +9,7 @@
   "author": "swwind <i@sww.moe>",
   "license": "MIT",
   "dependencies": {
-    "esbuild": "^0.20.2",
+    "@swc/core": "1.6.7-nightly-20240703.2",
     "tiny-glob": "^0.2.9"
   }
 }
