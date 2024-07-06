@@ -1,6 +1,6 @@
 {
   "name": "@swwind/exbuild",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "A simple build tool for pure typescript library",
   "type": "module",
   "bin": {
@@ -8,8 +8,20 @@
   },
   "author": "swwind <i@sww.moe>",
   "license": "MIT",
+  "files": [
+    "adjust_imports.wasm",
+    "index.mjs",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "cargo build-wasi --release && cp target/wasm32-wasi/release/adjust_imports.wasm .",
+    "prepublishOnly": "pnpm build"
+  },
   "dependencies": {
-    "@swc/core": "1.6.7-nightly-20240703.2",
+    "@swc/core": "1.6.7",
     "tiny-glob": "^0.2.9"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.10"
   }
 }

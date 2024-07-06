@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 
 import glob from "tiny-glob";
-import { parse, print, transformFile } from "@swc/core";
-import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
+import { mkdir, rm, writeFile, readFile } from "node:fs/promises";
 import { dirname } from "node:path";
+import { fileURLToPath } from "node:url";
+import { transformFile } from "@swc/core";
 
 /**
  * @param {string} filename
@@ -18,7 +19,13 @@ const entryPoints = [
   ...(await glob("src/**/*.tsx")),
 ].filter((x) => !excludes(x));
 
-const tsconfig = JSON.parse(await readFile("./tsconfig.json", "utf8"));
+let tsconfig = null;
+
+try {
+  tsconfig = JSON.parse(await readFile("./tsconfig.json", "utf8"));
+} catch {
+  // ignore...
+}
 
 /**
  *
@@ -30,54 +37,43 @@ function convertToMjs(filename) {
   return filename;
 }
 
+const adjustImportsWasm = fileURLToPath(
+  new URL("./adjust_imports.wasm", import.meta.url)
+);
+
 /**
  * @param {string} filename
  */
-async function transform(filename) {
-  const js = await transformFile(filename, {
+async function build(filename) {
+  const { code } = await transformFile(filename, {
     jsc: {
       parser: {
         syntax: "typescript",
         tsx: filename.endsWith(".tsx"),
+        comments: true,
       },
-      target: "esnext",
       transform: {
         react: {
           runtime: "automatic",
-          importSource: tsconfig.compilerOptions?.jsxImportSource || "react",
+          importSource: tsconfig?.compilerOptions?.jsxImportSource || "react",
         },
       },
+      experimental: {
+        plugins: [[adjustImportsWasm, {}]],
+      },
+      target: "esnext",
+      preserveAllComments: true,
     },
   });
 
-  const ast = await parse(js.code, {
-    syntax: "ecmascript",
-    target: "esnext",
-  });
-
-  for (const item of ast.body) {
-    if (
-      item.type === "ImportDeclaration" ||
-      item.type === "ExportAllDeclaration" ||
-      (item.type === "ExportNamedDeclaration" && item.source)
-    ) {
-      const source = item.source.value;
-      if (source.startsWith("./") || source.startsWith("../")) {
-        item.source.value = convertToMjs(source);
-      }
-      item.source.raw = JSON.stringify(item.source.value);
-    }
-  }
-
-  const output = await print(ast);
   const outname =
     (filename.endsWith(".tsx")
       ? filename.slice(4, -4)
       : filename.slice(4, -3)) + ".mjs";
-  return ["dist/esm/" + outname, output.code];
+  return ["dist/esm/" + outname, code];
 }
 
-const tasks = await Promise.all(entryPoints.map(transform));
+const tasks = await Promise.all(entryPoints.map(build));
 
 await rm("dist/esm", { recursive: true, force: true });
 for (const [outname, code] of tasks) {

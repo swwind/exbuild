@@ -1,0 +1,16 @@
+[package]
+name = "adjust-imports"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+swc_core = { version = "0.96.*", features = ["ecma_plugin_transform"] }
+
+[profile.release]
+codegen-units = 1
+lto = true
+opt-level = "s"
+strip = "symbols"
