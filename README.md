@@ -19,16 +19,29 @@ If you want types also get generated, you may need to install `typescript` manua
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "declaration": true,
+    "declarationMap": true,
     "emitDeclarationOnly": true,
-    "outDir": "dist/types",
+    "outDir": "dist",
     "strict": true,
     "allowImportingTsExtensions": true,
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "resolveJsonModule": true,
-    "lib": ["ESNext", "DOM"]
+    "verbatimModuleSyntax": true,
+    "lib": ["ESNext", "DOM"],
+    "types": ["node"]
   },
   "include": ["src/**/*.ts", "src/**/*.tsx"]
+}
+```
+
+You can add a build command like this.
+
+```json
+{
+  "script": {
+    "build": "tsc --build && exbuild"
+  }
 }
 ```
 
@@ -40,16 +53,16 @@ You can edit your `package.json` to make your package **importable**.
 {
   "name": "example",
   "version": "0.0.1",
-  "types": "./dist/types/index.d.ts",
-  "module": "./dist/esm/index.mjs",
+  "types": "./dist/index.d.ts",
+  "module": "./dist/index.mjs",
   "exports": {
     ".": {
-      "types": "./dist/types/index.d.ts",
-      "import": "./dist/esm/index.mjs"
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs"
     },
     "./another/entry": {
-      "types": "./dist/types/another/entry.d.ts",
-      "import": "./dist/esm/another/entry.mjs"
+      "types": "./dist/another/entry.d.ts",
+      "import": "./dist/another/entry.mjs"
     }
   }
 }
