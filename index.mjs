@@ -27,16 +27,6 @@ try {
   // ignore...
 }
 
-/**
- *
- * @param {string} filename
- */
-function convertToMjs(filename) {
-  if (filename.endsWith(".ts")) return filename.slice(0, -3) + ".mjs";
-  if (filename.endsWith(".tsx")) return filename.slice(0, -4) + ".mjs";
-  return filename;
-}
-
 const adjustImportsWasm = fileURLToPath(
   new URL("./adjust_imports.wasm", import.meta.url)
 );
@@ -64,6 +54,8 @@ async function build(filename) {
       target: "esnext",
       preserveAllComments: true,
     },
+    isModule: true,
+    sourceMaps: "inline",
   });
 
   const outname =

@@ -1,6 +1,6 @@
 {
   "name": "@swwind/exbuild",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "A simple build tool for pure typescript library",
   "type": "module",
   "bin": {
