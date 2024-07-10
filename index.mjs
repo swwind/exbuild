@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
 import glob from "tiny-glob";
-import { mkdir, rm, writeFile, readFile } from "node:fs/promises";
-import { dirname } from "node:path";
+import { mkdir, writeFile, readFile } from "node:fs/promises";
+import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { transformFile } from "@swc/core";
 
@@ -62,12 +62,11 @@ async function build(filename) {
     (filename.endsWith(".tsx")
       ? filename.slice(4, -4)
       : filename.slice(4, -3)) + ".mjs";
-  return ["dist/esm/" + outname, code];
+  return [join("dist", outname), code];
 }
 
 const tasks = await Promise.all(entryPoints.map(build));
 
-await rm("dist/esm", { recursive: true, force: true });
 for (const [outname, code] of tasks) {
   await mkdir(dirname(outname), { recursive: true });
   await writeFile(outname, code);
