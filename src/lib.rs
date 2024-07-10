@@ -1,5 +1,5 @@
 use swc_core::ecma::ast::{ExportAll, ImportDecl, NamedExport, Str};
-use swc_core::ecma::visit::VisitMutWith;
+use swc_core::ecma::visit::{noop_visit_mut_type, VisitMutWith};
 use swc_core::ecma::{ast::Program, visit::VisitMut};
 use swc_core::plugin::{plugin_transform, proxies::TransformPluginProgramMetadata};
 
@@ -18,6 +18,8 @@ fn adjust_import_source(s: &Str) -> Str {
 }
 
 impl VisitMut for AdjustImportsVisitor {
+    noop_visit_mut_type!();
+
     fn visit_mut_import_decl(&mut self, n: &mut ImportDecl) {
         n.src = Box::new(adjust_import_source(&n.src));
     }
